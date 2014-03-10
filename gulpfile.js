@@ -4,6 +4,9 @@ var pj = require('./package.json');
 var $ = require('gulp-load-plugins')();
 var concat = require('gulp-concat');
 
+// var debug = require('gulp-debug');
+
+
 gulp.task('usemin', ['templates'], function() {
   return gulp.src('app/index.html')
     .pipe($.usemin({
@@ -14,7 +17,7 @@ gulp.task('usemin', ['templates'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-// The generated file is being created at src 
+// The generated file is being created at src
 // so it can be fetched by usemin.
 gulp.task('templates', function() {
   return gulp.src('app/partials/*.html')
@@ -46,13 +49,18 @@ gulp.task('copy', function() {
 });
 
 gulp.task('compress-dist', ['add-csp'], function() {
-  return es.concat( 
-    gulp.src('dist/*')
+  return es.concat(
+    gulp.src('dist/**/*')
       .pipe($.zip('webogram_v' + pj.version + '.zip'))
-      .pipe(gulp.dest('package')),
-    gulp.src('package/*.zip')
-      .pipe(gulp.dest('.')),
-    gulp.src('package/**/*').pipe($.clean())
+      .pipe(gulp.dest('package_dist')),
+
+    gulp.src('package_dist/*.zip')
+      // .pipe(debug({verbose: true}))
+      .pipe(gulp.dest('releases')),
+
+    gulp.src(['package_dist'])
+      // .pipe(debug({verbose: true}))
+      .pipe($.clean())
   );
 });
 
@@ -83,7 +91,7 @@ gulp.task('update-version-comments', function() {
 
 
 gulp.task('clean', function() {
-  return gulp.src('dist').pipe($.clean());
+  return gulp.src(['dist/**/*', '!dist/.git']).pipe($.clean());
 });
 
 gulp.task('bump', ['update-version-manifests', 'update-version-settings', 'update-version-comments']);
